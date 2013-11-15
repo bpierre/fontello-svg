@@ -57,6 +57,9 @@ test('Glyph CSS name', function(t) {
 });
 
 test('Valid Glyphs to download', function(t) {
+
+  if (process.env.CI) return t.end();
+
   t.plan(2);
 
   var fs = require('fs');
