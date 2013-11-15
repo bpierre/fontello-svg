@@ -75,12 +75,12 @@ function start(rawGlyphs, out, colors, app) {
     // Output skipped glyphs
     if (app.skip && app.verbose) {
       glyphsSkipped.forEach(function(glyph) {
-        l('[skipped]'.data + ' Existing SVG: ' + glyph.name + '-' + glyph.collection, 2);
+        l('[skipped]'.data + ' existing SVG: ' + glyph.name + '-' + glyph.collection, 2);
       });
     }
 
     downloader.on('fetch-error', function(httpStream, writeStream) {
-      l('[error]'.error + ' Download failed: ' + httpStream.href, 2);
+      l('[error]'.error + ' download failed: ' + httpStream.href, 2);
     });
     downloader.on('svg-write', function(writeStream) {
       l('[saved]'.info + ' SVG file written: ' + writeStream.path, 2);
