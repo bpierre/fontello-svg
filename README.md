@@ -4,11 +4,17 @@ fontello-svg is a command-line tool to generate the SVG versions of a [Fontello]
 
 [![Build Status](https://travis-ci.org/bpierre/fontello-svg.png?branch=master)](https://travis-ci.org/bpierre/fontello-svg)
 
+## Installation
+
+```shell
+$ npm install fontello-svg -g
+```
+
 ## Example
 
 You need to select and download an icon set from the Fontello website, then indicate the path of the `config.json` file with the `--config` parameter.
 
-```
+```shell
 $ fontello-svg.js --config fontello-config-file.json \
                   --out ./iconset-directory \
                   --fill-colors "grey:rgb(77,78,83)|blue:rgb(0,149,221)"
@@ -16,7 +22,7 @@ $ fontello-svg.js --config fontello-config-file.json \
 
 ## Usage
 
-```
+```shell
   Usage: fontello-svg.js --config <config file> --out <dir> [options]
 
   Options:
