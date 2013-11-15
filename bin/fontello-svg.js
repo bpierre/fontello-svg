@@ -51,7 +51,8 @@ if (!app.config || !app.out) {
 }
 
 // Start
-start(require(path.resolve(app.config)));
+var config = require(path.resolve(app.config));
+start(config.glyphs);
 
 function start(rawGlyphs) {
   var out = path.resolve(app.out);
@@ -59,8 +60,16 @@ function start(rawGlyphs) {
   var glyphs = fontelloSvg.allGlyphs(rawGlyphs, colors);
   var glyphsToDl = app.skip? glyphs : fontello.missingGlyphs(glyphs);
 
-  fontelloSvg.downloadSvgs(glyphsToDl, out, function() { });
+  var downloader = fontelloSvg.downloadSvgs(glyphsToDl, out);
+
+  downloader.on('fetch-error', function(httpStream, writeStream) {
+    l('[error]'.error + ' Download failed: ' + httpStream.href, 2);
+  });
+  downloader.on('svg-write', function(writeStream) {
+    l('[saved]'.info + ' SVG file written: ' + writeStream.path, 2);
+  });
+
   fontelloSvg.writeCss(glyphs, out + '/index.css', function() {
-    l('[saved]'.info + (' ' + out + '/index.css').data, 2, 0, 1);
+    l('[saved]'.info + (' ' + out + '/index.css').data, 2);
   });
 }

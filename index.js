@@ -1,3 +1,4 @@
+var EventEmitter = require('events').EventEmitter;
 var fs = require('fs');
 var util = require('util');
 var stream = require('stream');
@@ -123,19 +124,25 @@ function svgTransformStream(fillColor) {
   return tstream;
 }
 
-function downloadSvgs(glyphs, svgDir, cb) {
+function downloadSvgs(glyphs, svgDir) {
+  var downloader = Object.create(EventEmitter.prototype);
+  EventEmitter.call(downloader);
   glyphs.forEach(function(glyph) {
     var url = svgUrl(glyph.name, glyph.collection);
     var svgFetcher = request(url);
     _.each(glyph.colors, function(fillColor, colorName) {
       var transform = svgTransformStream(fillColor);
       var fileWrite = fs.createWriteStream(svgDir + '/' + glyph.filename(colorName));
-      fileWrite.on('end', function() {
-        // todo
+      fileWrite.on('end', function(fileWrite) {
+        downloader.emit('svg-write');
+      });
+      svgFetcher.on('error', function() {
+        downloader.emit('fetch-error', svgFetcher, fileWrite);
       });
       svgFetcher.pipe(transform).pipe(fileWrite);
     });
   });
+  return downloader;
 }
 
 function writeCss(glyphs, cssPath, cb) {
