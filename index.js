@@ -12,6 +12,7 @@ var async = require('async');
 var COLLECTION_FILTERS = [
   [/^fontawesome$/, 'awesome-uni.font'],
   [/^entypo$/, 'entypo'],
+  [/^iconic$/, 'iconic-uni.font'],
   [/^websymbols$/, 'websymbols-uni.font'],
   [/.*/, function(collection) { return collection + '.font' }]
 ];
@@ -25,7 +26,6 @@ function svgUrl(name, collection) {
       break;
     }
   }
-  name = name.replace(/\-[1-9][0-9]*$/, '');
   return 'https://raw.github.com/fontello/' + collection +
          '/master/src/svg/' + name + '.svg';
 }
@@ -34,7 +34,7 @@ function svgUrl(name, collection) {
 var Glyph = {
   filename: function(color) {
     color = this.validColor(color);
-    return this.collection + '-' + this.id + '-' + color + '.svg';
+    return this.collection + '-' + this.name + '-' + color + '.svg';
   },
   filenames: function() {
     return Object.keys(this.colors).map(function(color) {
@@ -88,9 +88,28 @@ function rawGlyphToGlyph(rawGlyph, id, colors) {
   return createGlyph(rawGlyph.css, rawGlyph.src, id, colors);
 }
 
+// Sometimes, a glyph name have a numbered suffix.  This suffix can be the name
+// of the pictogram (e.g. "progress-5"), or it could have been added because
+// another pictogram (in another collection) have the same name (e.g. "search-2").
+// In the second case, the suffix need to be removed.
+function fixNames(rawGlyphs) {
+  var countSuffix = /\-[1-9][0-9]*$/;
+  return rawGlyphs.map(function(rawGlyph) {
+    var name = rawGlyph.css;
+    if (!countSuffix.test(name)) return rawGlyph;
+    var noSuffix = name.replace(countSuffix, '');
+    var exists = rawGlyphs.some(function(rawGlyph) {
+      return rawGlyph.css === noSuffix;
+    });
+    if (exists) rawGlyph.css = noSuffix;
+    return rawGlyph;
+  });
+}
+
 // Creates and returns all Glyphs from a rawGlyphs list
 function allGlyphs(rawGlyphs, colors) {
   var unique = nodupes();
+  rawGlyphs = fixNames(rawGlyphs);
   return rawGlyphs.map(function(rawGlyph) {
     var name = rawGlyph.css;
     var collection = rawGlyph.src;
@@ -161,3 +180,4 @@ exports.allGlyphs = allGlyphs;
 exports.missingGlyphs = missingGlyphs;
 exports.downloadSvgs = downloadSvgs;
 exports.writeCss = writeCss;
+exports.fixNames = fixNames;
