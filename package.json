@@ -1,6 +1,6 @@
 {
   "name": "fontello-svg",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "fontello-svg is a command-line tool to generate the SVG versions of a Fontello icon set, with a corresponding CSS file.",
   "author": "Pierre Bertet <bonjour@pierrebertet.net>",
   "license": "BSD-2-Clause",
