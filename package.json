@@ -11,7 +11,7 @@
     "colors": "~0.6.2",
     "commander": "~2.0.0",
     "mkdirp": "~0.3.5",
-    "nodupes": "~0.0.1",
+    "nodupes": "~0.1.0",
     "async": "~0.2.9"
   },
   "devDependencies": {
