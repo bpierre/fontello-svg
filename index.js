@@ -133,11 +133,11 @@ function downloadSvgs(glyphs, svgDir) {
     _.each(glyph.colors, function(fillColor, colorName) {
       var transform = svgTransformStream(fillColor);
       var fileWrite = fs.createWriteStream(svgDir + '/' + glyph.filename(colorName));
-      fileWrite.on('end', function(fileWrite) {
-        downloader.emit('svg-write');
+      fileWrite.on('finish', function() {
+        downloader.emit('svg-write', fileWrite);
       });
       svgFetcher.on('error', function() {
-        downloader.emit('fetch-error', svgFetcher, fileWrite);
+        downloader.emit('fetch-error', svgFetcher);
       });
       svgFetcher.pipe(transform).pipe(fileWrite);
     });

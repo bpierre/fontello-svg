@@ -79,13 +79,15 @@ function start(rawGlyphs, out, colors, app) {
       });
     }
 
-    downloader.on('fetch-error', function(httpStream, writeStream) {
+    // SVG write messages
+    downloader.on('fetch-error', function(httpStream) {
       l('[error]'.error + ' download failed: ' + httpStream.href, 2);
     });
     downloader.on('svg-write', function(writeStream) {
       l('[saved]'.info + ' SVG file written: ' + writeStream.path, 2);
     });
 
+    // Write CSS
     fontelloSvg.writeCss(glyphs, out + '/index.css', function() {
       l('[saved]'.info + (' ' + out + '/index.css').data, 2);
     });
