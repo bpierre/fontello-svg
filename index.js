@@ -164,10 +164,10 @@ function downloadSvgs(glyphs, svgDir) {
   return downloader;
 }
 
-function writeCss(glyphs, cssPath, cb) {
+function writeCss(glyphs, cssPath, backgroundUrlPath, cb) {
   var fileWriter = fs.createWriteStream(cssPath);
   glyphs.forEach(function(glyph) {
-    fileWriter.write(glyph.cssDeclarations());
+    fileWriter.write(glyph.cssDeclarations(backgroundUrlPath));
   });
   fileWriter.end();
   cb();

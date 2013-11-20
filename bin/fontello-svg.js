@@ -54,6 +54,7 @@ if (!app.config || !app.out) {
 var config = require(path.resolve(app.config));
 var out = path.resolve(app.out);
 var colors = app.fillColors || {'black': '#000000'};
+var backgroundUrlPath = app.cssPath || '';
 
 start(config.glyphs, out, colors, app);
 
@@ -88,7 +89,7 @@ function start(rawGlyphs, out, colors, app) {
     });
 
     // Write CSS
-    fontelloSvg.writeCss(glyphs, out + '/index.css', function() {
+    fontelloSvg.writeCss(glyphs, out + '/index.css', backgroundUrlPath, function() {
       l('[saved]'.info + (' ' + out + '/index.css').data, 2);
     });
   }
