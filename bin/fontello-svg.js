@@ -58,6 +58,10 @@ var backgroundUrlPath = app.cssPath || '';
 
 start(config.glyphs, out, colors, app);
 
+function relativePath(abspath) {
+  return path.relative(process.cwd(), abspath);
+}
+
 function start(rawGlyphs, out, colors, app) {
   var glyphs = fontelloSvg.allGlyphs(rawGlyphs, colors);
 
@@ -84,13 +88,13 @@ function start(rawGlyphs, out, colors, app) {
     downloader.on('fetch-error', function(httpStream) {
       l('[error]'.error + ' download failed: ' + httpStream.href, 2);
     });
-    downloader.on('svg-write', function(writeStream) {
-      l('[saved]'.info + ' SVG file written: ' + writeStream.path, 2);
+    downloader.on('svg-write', function(filename) {
+      l('[saved]'.info + ' ' + relativePath(filename), 2);
     });
 
     // Write CSS
     fontelloSvg.writeCss(glyphs, out + '/index.css', backgroundUrlPath, function() {
-      l('[saved]'.info + (' ' + out + '/index.css').data, 2);
+      l('[saved]'.info + ' ' + relativePath(out + '/index.css'), 2);
     });
   }
 }
