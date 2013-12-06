@@ -127,20 +127,9 @@ function missingGlyphs(glyphs, svgDir, cb) {
   }, cb);
 }
 
-function svgTransformStream(fillColor) {
-  var data='', tstream = new stream.Transform();
-  tstream._transform = function(chunk, encoding, done) {
-    data += chunk.toString();
-    done();
-  };
-  tstream._flush = function(done) {
-    if (fillColor) {
-      data = data.replace(/<path/g, '<path fill="' + fillColor + '"');
-    }
-    this.push(data);
-    done();
-  };
-  return tstream;
+function svgTransform(body, fillColor) {
+  if (!fillColor) return body;
+  return body.replace(/<path/g, '<path fill="' + fillColor + '"');
 }
 
 function downloadSvgs(glyphs, svgDir) {
@@ -148,17 +137,16 @@ function downloadSvgs(glyphs, svgDir) {
   EventEmitter.call(downloader);
   glyphs.forEach(function(glyph) {
     var url = svgUrl(glyph.name, glyph.collection);
-    var svgFetcher = request(url);
-    _.each(glyph.colors, function(fillColor, colorName) {
-      var transform = svgTransformStream(fillColor);
-      var fileWrite = fs.createWriteStream(svgDir + '/' + glyph.filename(colorName));
-      fileWrite.on('finish', function() {
-        downloader.emit('svg-write', fileWrite);
+    var svgFetcher = request(url, function(err, response, content) {
+      if (err) return downloader.emit('fetch-error', svgFetcher);
+      _.each(glyph.colors, function(fillColor, colorName) {
+        var svgContent = svgTransform(content, fillColor);
+        var filename = svgDir + '/' + glyph.filename(colorName);
+        fs.writeFile(filename, svgContent, function(err) {
+          if (err) throw err;
+          downloader.emit('svg-write', filename);
+        });
       });
-      svgFetcher.on('error', function() {
-        downloader.emit('fetch-error', svgFetcher);
-      });
-      svgFetcher.pipe(transform).pipe(fileWrite);
     });
   });
   return downloader;
