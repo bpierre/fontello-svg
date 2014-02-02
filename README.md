@@ -32,7 +32,8 @@ $ fontello-svg.js --config fontello-config-file.json \
     -c, --config <config file>  Set the Fontello configuration file (required)
     -o, --out <dir>             Set the export directory (required)
     -f, --fill-colors <colors>  Transform the SVG paths to the specified colors. Syntax: --fill-colors "black:rgb(0,0,0) | red:rgb(255,0,0)"
-    -p, --css-path <path>       Set a CSS path for SVG backgrounds.
+    -p, --css-path <path>       Set a CSS path for SVG backgrounds
+    --no-css                    Do not create the CSS file
     --no-skip                   Do not skip existing files
     --verbose                   Verbose output
 ```
