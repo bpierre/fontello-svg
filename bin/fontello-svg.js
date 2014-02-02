@@ -35,7 +35,8 @@ app.usage('--config <config file> --out <dir> [options]');
 app.option('-c, --config <config file>', 'Set the Fontello configuration file (required)');
 app.option('-o, --out <dir>', 'Set the export directory (required)');
 app.option('-f, --fill-colors <colors>', 'Transform the SVG paths to the specified colors. Syntax: --fill-colors "black:rgb(0,0,0) | red:rgb(255,0,0)"', argsObject);
-app.option('-p, --css-path <path>', 'Set a CSS path for SVG backgrounds.');
+app.option('-p, --css-path <path>', 'Set a CSS path for SVG backgrounds');
+app.option('--no-css', 'Do not create the CSS file');
 app.option('--no-skip', 'Do not skip existing files');
 app.option('--verbose', 'Verbose output');
 app.parse(process.argv);
@@ -93,8 +94,10 @@ function start(rawGlyphs, out, colors, app) {
     });
 
     // Write CSS
-    fontelloSvg.writeCss(glyphs, out + '/index.css', backgroundUrlPath, function() {
-      l('[saved]'.info + ' ' + relativePath(out + '/index.css'), 2);
-    });
+    if (app.css) {
+      fontelloSvg.writeCss(glyphs, out + '/index.css', backgroundUrlPath, function() {
+        l('[saved]'.info + ' ' + relativePath(out + '/index.css'), 2);
+      });
+    }
   }
 }
