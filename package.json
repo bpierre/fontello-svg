@@ -10,7 +10,7 @@
   },
   "main": "index.js",
   "dependencies": {
-    "request": "~2.27.0",
+    "request": "~2.38.0",
     "underscore": "~1.5.2",
     "colors": "~0.6.2",
     "commander": "~2.0.0",
