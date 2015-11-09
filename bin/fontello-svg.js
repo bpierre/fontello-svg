@@ -5,6 +5,7 @@ var _ = require('underscore');
 var path = require('path');
 var app = require('commander');
 var colors = require('colors');
+var fs = require('fs');
 
 function l(msg, indent, nlBefore, nlAfter) {
   if (!indent) indent = 0;
@@ -65,6 +66,10 @@ function relativePath(abspath) {
 
 function start(rawGlyphs, out, colors, app) {
   var glyphs = fontelloSvg.allGlyphs(rawGlyphs, colors);
+
+  if (!fs.existsSync(out)){
+    fs.mkdirSync(out);
+  }
 
   if (app.skip) {
     fontelloSvg.missingGlyphs(glyphs, out, processGlyphs);
