@@ -37,6 +37,7 @@ app.option('-c, --config <config file>', 'Set the Fontello configuration file (r
 app.option('-o, --out <dir>', 'Set the export directory (required)');
 app.option('-f, --fill-colors <colors>', 'Transform the SVG paths to the specified colors. Syntax: --fill-colors "black:rgb(0,0,0) | red:rgb(255,0,0)"', argsObject);
 app.option('-p, --css-path <path>', 'Set a CSS path for SVG backgrounds');
+app.option('--file-format <format>', 'Override the default filename. Values: {0} - collection, {1} - name, {2} - color. Syntax: "{0}-{1}-{2}.svg" | "{0}-Custom-{1}.svg" "');
 app.option('--no-css', 'Do not create the CSS file');
 app.option('--no-skip', 'Do not skip existing files');
 app.option('--verbose', 'Verbose output');
@@ -57,6 +58,7 @@ var config = require(path.resolve(app.config));
 var out = path.resolve(app.out);
 var colors = app.fillColors || {'black': '#000000'};
 var backgroundUrlPath = app.cssPath || '';
+var fileFormat = app.fileFormat || "{0}-{1}-{2}.svg";
 
 start(config.glyphs, out, colors, app);
 
@@ -65,7 +67,7 @@ function relativePath(abspath) {
 }
 
 function start(rawGlyphs, out, colors, app) {
-  var glyphs = fontelloSvg.allGlyphs(rawGlyphs, colors);
+  var glyphs = fontelloSvg.allGlyphs(rawGlyphs, colors, fileFormat);
 
   if (!fs.existsSync(out)){
     fs.mkdirSync(out);
