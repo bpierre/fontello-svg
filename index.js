@@ -30,11 +30,23 @@ function svgUrl(name, collection) {
          '/master/src/svg/' + name + '.svg';
 }
 
+if (!String.format) {
+  String.format = function(format) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return String(format.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number] 
+        : match
+      ;
+    }));
+  };
+}
+
 // The Glyph object
 var Glyph = {
   filename: function(color) {
     color = this.validColor(color);
-    return this.collection + '-' + this.name + '-' + color + '.svg';
+    return String.format(this.fileFormat, this.collection, this.name, color);
   },
   filenames: function() {
     return Object.keys(this.colors).map(function(color) {
@@ -62,9 +74,10 @@ var Glyph = {
 };
 
 // Creates and returns a Glyph instance
-function createGlyph(name, collection, id, colors) {
+function createGlyph(name, collection, id, colors, fileFormat) {
   var glyph = Object.create(Glyph);
   if (!colors) colors = { 'black': 'rgb(0,0,0)' };
+  if (!fileFormat) fileFormat = "{0}-{1}-{2}.svg";
   if (!id) id = name;
   glyph.id = id;
   glyph.name = name;
@@ -72,6 +85,7 @@ function createGlyph(name, collection, id, colors) {
   glyph.url = svgUrl(glyph.name, glyph.collection);
   glyph.colors = colors;
   glyph.exists = null;
+  glyph.fileFormat = fileFormat;
   return glyph;
 }
 
@@ -107,13 +121,13 @@ function fixNames(rawGlyphs) {
 }
 
 // Creates and returns all Glyphs from a rawGlyphs list
-function allGlyphs(rawGlyphs, colors) {
+function allGlyphs(rawGlyphs, colors, fileFormat) {
   var unique = nodupes();
   rawGlyphs = fixNames(rawGlyphs);
   return rawGlyphs.map(function(rawGlyph) {
     var name = rawGlyph.css;
     var collection = rawGlyph.src;
-    return createGlyph(name, collection, unique(name), colors);
+    return createGlyph(name, collection, unique(name), colors, fileFormat);
   });
 }
 
