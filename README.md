@@ -39,6 +39,10 @@ $ fontello-svg.js --config fontello-config-file.json \
     --verbose                   Verbose output
 ```
 
+## Tutorial
+
+[Sara Soueidan](https://sarasoueidan.com/) wrote a blog post explaining how to use fontello-svg and other tools to convert an icons-as-font configuration into SVG files. Read it here: <https://sarasoueidan.com/blog/icon-fonts-to-svg/>
+
 ## License
 
 [MIT](http://pierre.mit-license.org/)
