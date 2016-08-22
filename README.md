@@ -15,7 +15,7 @@ $ npm install fontello-svg -g
 You need to select and download an icon set from the Fontello website, then indicate the path of the `config.json` file with the `--config` parameter.
 
 ```shell
-$ fontello-svg.js --config fontello-config-file.json \
+$ fontello-svg --config fontello-config-file.json \
                   --out ./iconset-directory \
                   --fill-colors "grey:rgb(77,78,83)|blue:rgb(0,149,221)"
 ```
