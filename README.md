@@ -23,7 +23,7 @@ $ fontello-svg --config fontello-config-file.json \
 ## Usage
 
 ```shell
-  Usage: fontello-svg.js --config <config file> --out <dir> [options]
+  Usage: fontello-svg --config <config file> --out <dir> [options]
 
   Options:
 
