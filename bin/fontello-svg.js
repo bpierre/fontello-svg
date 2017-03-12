@@ -2,7 +2,6 @@
 
 var fontelloSvg = require('../');
 var _ = require('underscore');
-var path = require('path');
 var app = require('commander');
 var colors = require('colors');
 var fs = require('fs');
@@ -53,58 +52,9 @@ if (!app.config || !app.out) {
   app.help();
 }
 
-// Start
-var config = require(path.resolve(app.config));
-var out = path.resolve(app.out);
-var colors = app.fillColors || {'black': '#000000'};
-var backgroundUrlPath = app.cssPath || '';
-var fileFormat = app.fileFormat || "{0}-{1}-{2}.svg";
+var emitter = fontelloSvg.fontelloSvg(app.config, app.out, app);
 
-start(config.glyphs, out, colors, app);
+emitter.on('svg-write', function(msg, indent, nlBefore, nlAfter) {
+  l(msg, indent, nlBefore, nlAfter);
+});
 
-function relativePath(abspath) {
-  return path.relative(process.cwd(), abspath);
-}
-
-function start(rawGlyphs, out, colors, app) {
-  var glyphs = fontelloSvg.allGlyphs(rawGlyphs, colors, fileFormat);
-
-  if (!fs.existsSync(out)){
-    fs.mkdirSync(out);
-  }
-
-  if (app.skip) {
-    fontelloSvg.missingGlyphs(glyphs, out, processGlyphs);
-  } else {
-    processGlyphs(glyphs);
-  }
-
-  function processGlyphs(glyphsToDl) {
-    var glyphsSkipped = glyphs.filter(function(glyph) {
-      return glyphsToDl.indexOf(glyph) === -1;
-    });
-    var downloader = fontelloSvg.downloadSvgs(glyphsToDl, out);
-
-    // Output skipped glyphs
-    if (app.skip && app.verbose) {
-      glyphsSkipped.forEach(function(glyph) {
-        l('[skipped]'.data + ' existing SVG: ' + glyph.name + '-' + glyph.collection, 2);
-      });
-    }
-
-    // SVG write messages
-    downloader.on('fetch-error', function(httpStream) {
-      l('[error]'.error + ' download failed: ' + httpStream.href, 2);
-    });
-    downloader.on('svg-write', function(filename) {
-      l('[saved]'.info + ' ' + relativePath(filename), 2);
-    });
-
-    // Write CSS
-    if (app.css) {
-      fontelloSvg.writeCss(glyphs, out + '/index.css', backgroundUrlPath, function() {
-        l('[saved]'.info + ' ' + relativePath(out + '/index.css'), 2);
-      });
-    }
-  }
-}

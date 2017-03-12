@@ -7,6 +7,7 @@ var request = require('request');
 var mkdirp = require('mkdirp');
 var nodupes = require('nodupes');
 var async = require('async');
+var path = require('path');
 
 // Fontello URL special cases
 var COLLECTION_FILTERS = [
@@ -175,6 +176,87 @@ function writeCss(glyphs, cssPath, backgroundUrlPath, cb) {
   cb();
 }
 
+function fontelloSvg(configFile, outDirectory, opt, callback) {
+  var config = require(path.resolve(configFile)),
+    out = path.resolve(outDirectory),
+    colors = opt.fillColors || {'black': '#000000'},
+    backgroundUrlPath = opt.cssPath || '',
+    fileFormat = opt.fileFormat || "{0}-{1}-{2}.svg",
+    glyphs = allGlyphs(config.glyphs, colors, fileFormat),
+    emitter = Object.create(EventEmitter.prototype);
+
+  EventEmitter.call(emitter);
+
+  if (!fs.existsSync(out)){
+    fs.mkdirSync(out);
+  }
+
+  if (opt.skip) {
+    missingGlyphs(glyphs, out, processGlyphs);
+  } else {
+    processGlyphs(glyphs);
+  }
+
+  function relativePath(abspath) {
+    return path.relative(process.cwd(), abspath);
+  }
+
+  function processGlyphs(glyphsToDl) {
+    var nbProcessed = 0,
+        nbGlyphs;
+
+    var glyphsSkipped = glyphs.filter(function(glyph) {
+      return glyphsToDl.indexOf(glyph) === -1;
+    });
+
+    nbGlyphs = glyphsToDl.length + glyphsSkipped.length;
+
+    var downloader = downloadSvgs(glyphsToDl, out);
+
+    // Output skipped glyphs
+    if (opt.skip && opt.verbose) {
+      glyphsSkipped.forEach(function(glyph) {
+        nbProcessed += 1;
+        emitter.emit('svg-write', '[skipped] existing SVG: ' + glyph.name + '-' + glyph.collection, 2);
+      });
+    }
+
+    // Everything was skipped / nothing to download
+    if (glyphsToDl.length === 0 && callback) {
+        callback();
+        return;
+    }
+
+    // SVG write messages
+    downloader.on('fetch-error', function(httpStream) {
+      nbProcessed += 1;
+      emitter.emit('svg-write', '[error] download failed: ' + httpStream.href, 2);
+
+      if (nbProcessed === nbGlyphs && callback) {
+        callback();
+      }
+    });
+
+    downloader.on('svg-write', function(filename) {
+      nbProcessed += 1;
+      emitter.emit('svg-write', '[saved] ' + relativePath(filename), 2);
+
+      if (nbProcessed === nbGlyphs && callback) {
+        callback();
+      }
+    });
+
+    // Write CSS
+    if (opt.css) {
+      writeCss(glyphs, out + '/index.css', backgroundUrlPath, function() {
+        emitter.emit('svg-write', '[saved] ' + relativePath(out + '/index.css'), 2);
+      });
+    }
+  }
+
+  return emitter;
+}
+
 exports.svgUrl = svgUrl;
 exports.createGlyph = createGlyph;
 exports.glyphCreator = glyphCreator;
@@ -183,3 +265,4 @@ exports.missingGlyphs = missingGlyphs;
 exports.downloadSvgs = downloadSvgs;
 exports.writeCss = writeCss;
 exports.fixNames = fixNames;
+exports.fontelloSvg = fontelloSvg;
